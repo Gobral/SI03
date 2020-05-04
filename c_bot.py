@@ -15,7 +15,8 @@ class C_Bot:
         print(label, "   ", zt_nowy - self.zt_aktualny_czas)
         self.zt_aktualny_czas = zt_nowy
 
-    def f_wykonaj_ruch(self):
+    def f_wykonaj_ruch(self, plansza):
+        self.znp_plansza = plansza
         self.f_wyswietl_pomiar("Start sprawdzaia")
         if np.sum(self.znp_plansza) == 0:
             self.znp_plansza[5][3] = self.zi_kolor
@@ -37,9 +38,7 @@ class C_Bot:
 
         licznik = 1
         while licznik <= self.zi_glebokosc:
-            if licznik == self.zi_glebokosc:
-                analiza = liscie[:]
-            print(len(liscie))
+           # print(len(liscie))
             if akt_kolor == 1:
                 akt_kolor = 2
             else:
@@ -63,18 +62,37 @@ class C_Bot:
 
             licznik += 1 
 
-        print(len(liscie))
-        print(len(analiza))
+      # print(len(liscie))
 
         #minmax
-        while(analiza[0] != None):
-            analiza = self.f_generuj_poziom(root)
-        
-        
-        self.f_wyswietl_pomiar("Konic")
+        #while(analiza[0] != None):
+        for i in range(1, self.zi_glebokosc + 1):
+            analiza = self.f_generuj_poziom(self.zi_glebokosc - i, root)
+          #  print(len(analiza), i)
+            if i%2 == 0:
+                for a in analiza:
+                    a.f_oblicz_min()
+            else:
+                for a in analiza:
+                    a.f_oblicz_max()
 
-    def f_generuj_poziom(self, root):
-        return [None]
+
+        wyb = root.f_oblicz_max()
+        self.f_wyswietl_pomiar("Konic")
+        return wyb.znp_stan
+        
+
+    def f_generuj_poziom(self, max, root):
+        liscie = [root]
+        poziom = 0
+        while poziom <= max:
+            nowe_liscie = []
+            for l in liscie:
+                nowe_liscie.extend(l.children)
+            poziom += 1
+            liscie = nowe_liscie
+
+        return liscie
 
     def f_generuj_ruchy(self, stan, kolor):
         ret_ruchy = []
