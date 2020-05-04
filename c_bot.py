@@ -18,9 +18,10 @@ class C_Bot:
     def f_wykonaj_ruch(self, plansza):
         self.znp_plansza = plansza
         self.f_wyswietl_pomiar("Start sprawdzaia")
+
         if np.sum(self.znp_plansza) == 0:
             self.znp_plansza[5][3] = self.zi_kolor
-            return
+            return [self.znp_plansza, True]
         
         root = C_Node(self.znp_plansza)
         akt_kolor = self.zi_kolor
@@ -31,7 +32,10 @@ class C_Bot:
             l = root.f_dodaj_dziecko()
             l.color = akt_kolor
             l.znp_stan[ruch[0]][ruch[1]] = ruch[2]
-            self.f_ocen_node(l, l.color)
+            if akt_kolor == 1:
+                self.f_ocen_node(l, 2)
+            else:
+                self.f_ocen_node(l, 1)
 
             liscie.append(l)
 
@@ -54,9 +58,15 @@ class C_Bot:
                     self.f_ocen_node(nl, nl.color)
                     if nl.score < self.win_state:
                         nowe_liscie.append(nl)
+                    else:
+                        nl.graj = False
                     
-                    if akt_kolor != self.zi_kolor:
-                        self.f_ocen_node(nl, self.zi_kolor)
+                    if akt_kolor == self.zi_kolor:
+                        if akt_kolor == 1:
+                            self.f_ocen_node(nl, 2)
+                        else:
+                            self.f_ocen_node(nl, 1)
+                       
 
             liscie = nowe_liscie
 
@@ -69,7 +79,7 @@ class C_Bot:
         for i in range(1, self.zi_glebokosc + 1):
             analiza = self.f_generuj_poziom(self.zi_glebokosc - i, root)
           #  print(len(analiza), i)
-            if i%2 == 0:
+            if i%2 != 0:
                 for a in analiza:
                     a.f_oblicz_min()
             else:
@@ -77,9 +87,9 @@ class C_Bot:
                     a.f_oblicz_max()
 
 
-        wyb = root.f_oblicz_max()
+        wyb = root.f_oblicz_min()
         self.f_wyswietl_pomiar("Konic")
-        return wyb.znp_stan
+        return [wyb.znp_stan, wyb.graj]
         
 
     def f_generuj_poziom(self, max, root):

@@ -7,6 +7,7 @@ class C_Node:
         self.children = []
         self.score = 0
         self.color = 0
+        self.graj = True
 
     def f_dodaj_dziecko(self):
         child = C_Node(self.znp_stan)
@@ -21,6 +22,9 @@ class C_Node:
             if c.score < min_w:
                 min_w = c.score
                 min_n = c
+            elif c.score == min_w and np.random.rand() > 0.5:
+                min_w = c.score
+                min_n = c
         
         if min_n != None:
             self.score = min_w
@@ -32,6 +36,9 @@ class C_Node:
         max_n = None
         for c in self.children:
             if c.score > max_w:
+                max_w = c.score
+                max_n = c
+            elif c.score == max_w and np.random.rand() > 0.5:
                 max_w = c.score
                 max_n = c
         
