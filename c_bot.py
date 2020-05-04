@@ -87,9 +87,16 @@ class C_Bot:
                 for a in analiza:
                     a.f_oblicz_max()
 
-
         wyb = root.f_oblicz_min()
+        self.f_ocen_node(wyb, 1)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+        self.f_ocen_node(wyb, 2)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+            
         self.f_wyswietl_pomiar("Koniec")
+
         return [wyb.znp_stan, wyb.graj]
         
 
