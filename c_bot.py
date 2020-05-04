@@ -21,6 +21,7 @@ class C_Bot:
 
         if np.sum(self.znp_plansza) == 0:
             self.znp_plansza[5][3] = self.zi_kolor
+            self.f_wyswietl_pomiar("Koniec")
             return [self.znp_plansza, True]
         
         root = C_Node(self.znp_plansza)
@@ -88,7 +89,7 @@ class C_Bot:
 
 
         wyb = root.f_oblicz_min()
-        self.f_wyswietl_pomiar("Konic")
+        self.f_wyswietl_pomiar("Koniec")
         return [wyb.znp_stan, wyb.graj]
         
 
