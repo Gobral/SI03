@@ -20,28 +20,63 @@ class C_Bot:
         self.f_wyswietl_pomiar("Start sprawdzaia")
 
         if np.sum(self.znp_plansza) == 0:
-            self.znp_plansza[5][3] = self.zi_kolor
+            self.znp_plansza[5][np.random.randint(0, 7)] = self.zi_kolor
             self.f_wyswietl_pomiar("Koniec")
             return [self.znp_plansza, True]
         
         root = C_Node(self.znp_plansza)
+        root.color = self.zi_kolor
+
+        """
+        self.f_ocena_wszystkich(root)
+
+        #minmax
+        #while(analiza[0] != None):
+        for i in range(1, self.zi_glebokosc + 1):
+            analiza = self.f_generuj_poziom(self.zi_glebokosc - i, root)
+          #  print(len(analiza), i)
+            if i%2 != 0:
+                for a in analiza:
+                    a.f_oblicz_max()
+            else:
+                for a in analiza:
+                    a.f_oblicz_min()
+
+        wyb = root.f_oblicz_max()
+        
+        self.f_ocen_node(wyb, 1)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+        self.f_ocen_node(wyb, 2)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+
+        """
+        wyb = self.f_test_generowania(root)
+        self.f_ocen_node(wyb, 1)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+        self.f_ocen_node(wyb, 2)
+        if wyb.score >= self.win_state:
+            wyb.graj = False
+        print(wyb.score)
+            
+        self.f_wyswietl_pomiar("Koniec")
+
+        return [wyb.znp_stan, wyb.graj]
+
+    def f_ocena_wszystkich(self, root):
         akt_kolor = self.zi_kolor
-        ruchy = self.f_generuj_ruchy(root.znp_stan, akt_kolor)
+
         liscie = []
         analiza = []
-        for ruch in ruchy:
-            l = root.f_dodaj_dziecko()
-            l.color = akt_kolor
-            l.znp_stan[ruch[0]][ruch[1]] = ruch[2]
-            if akt_kolor == 1:
-                self.f_ocen_node(l, 2)
-            else:
-                self.f_ocen_node(l, 1)
 
-            liscie.append(l)
-
-
-        licznik = 1
+        if akt_kolor == 1:
+            akt_kolor = 2
+        else:
+            akt_kolor = 1
+        licznik = 0
+        liscie.append(root)
         while licznik <= self.zi_glebokosc:
            # print(len(liscie))
             if akt_kolor == 1:
@@ -59,46 +94,69 @@ class C_Bot:
                     self.f_ocen_node(nl, nl.color)
                     if nl.score < self.win_state:
                         nowe_liscie.append(nl)
-                    else:
-                        nl.graj = False
-                    
-                    if akt_kolor == self.zi_kolor:
+                        temp_ocena = nl.score
+
                         if akt_kolor == 1:
                             self.f_ocen_node(nl, 2)
                         else:
                             self.f_ocen_node(nl, 1)
-                       
 
+                        if akt_kolor != self.zi_kolor:
+                            nl.score = nl.score - temp_ocena
+                        else:
+                            nl.score = temp_ocena - nl.score
+                    else:
+                        nl.graj = False
+                        if akt_kolor != self.zi_kolor:
+                            nl.score = -nl.score
+                    
+                    #print(nl.znp_stan)
+                    #print(nl.score)
             liscie = nowe_liscie
 
             licznik += 1 
 
-      # print(len(liscie))
+    def f_test_generowania(self, root):
+        return self.f_test_rekurencji(self.zi_kolor, root, 0)
 
-        #minmax
-        #while(analiza[0] != None):
-        for i in range(1, self.zi_glebokosc + 1):
-            analiza = self.f_generuj_poziom(self.zi_glebokosc - i, root)
-          #  print(len(analiza), i)
-            if i%2 != 0:
-                for a in analiza:
-                    a.f_oblicz_min()
-            else:
-                for a in analiza:
-                    a.f_oblicz_max()
-
-        wyb = root.f_oblicz_min()
-        self.f_ocen_node(wyb, 1)
-        if wyb.score >= self.win_state:
-            wyb.graj = False
-        self.f_ocen_node(wyb, 2)
-        if wyb.score >= self.win_state:
-            wyb.graj = False
-            
-        self.f_wyswietl_pomiar("Koniec")
-
-        return [wyb.znp_stan, wyb.graj]
+    def f_test_rekurencji(self, kolor, node, poziom):
+        #print(poziom)
+        self.f_ocen_node(node, kolor)
+        if node.score >= self.win_state:
+            if kolor != self.zi_kolor:
+                node.score = -node.score
+            return node
         
+        if poziom > self.zi_glebokosc:
+            self.f_test_heurystyki(node)
+            return node
+        
+        node.score = -1000
+        ruchy = self.f_generuj_ruchy(node.znp_stan, kolor)
+        #wyniki = []
+        kolor_p = 2 if kolor == 1 else 1
+
+        for ruch in ruchy:
+            nl = node.f_dodaj_dziecko()
+            nl.color = kolor_p
+            nl.znp_stan[ruch[0]][ruch[1]] = ruch[2]
+            #wyniki.append(self.f_test_rekurencji(kolor_p, nl, poziom + 1))
+            self.f_test_rekurencji(kolor_p, nl, poziom + 1)
+
+        if kolor == self.zi_kolor:
+            return node.f_oblicz_max()
+        else:
+            return node.f_oblicz_min()
+            
+
+    def f_test_heurystyki(self, node):
+        temp_ocena = node.score
+        if node.color != self.zi_kolor:
+            self.f_ocen_node(node, self.zi_kolor)
+            node.score = node.score - temp_ocena
+        else:
+            node.score = temp_ocena - node.score
+
 
     def f_generuj_poziom(self, max, root):
         liscie = [root]

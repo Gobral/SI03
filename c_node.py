@@ -5,7 +5,7 @@ class C_Node:
         self.znp_stan = np.copy(plansza)
         self.parent = None
         self.children = []
-        self.score = 0
+        self.score = -1000
         self.color = 0
         self.graj = True
 
@@ -22,7 +22,7 @@ class C_Node:
             if c.score < min_w:
                 min_w = c.score
                 min_n = c
-            elif c.score == min_w and np.random.rand() > 0.5:
+            elif c.score == min_w and np.random.rand() > 0.6:
                 min_w = c.score
                 min_n = c
         
@@ -38,7 +38,7 @@ class C_Node:
             if c.score > max_w:
                 max_w = c.score
                 max_n = c
-            elif c.score == max_w and np.random.rand() > 0.5:
+            elif c.score == max_w and np.random.rand() > 0.6:
                 max_w = c.score
                 max_n = c
         
