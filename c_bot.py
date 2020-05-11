@@ -77,6 +77,11 @@ class C_Bot:
             if temp[0] > alfa[0]:
                 alfa[0] = temp[0]
                 alfa[1] = temp[1]
+
+            elif temp[0] == alfa[0] and np.random.rand() > 0.6:
+                alfa[0] = temp[0]
+                alfa[1] = temp[1]
+
         
         return alfa
 
@@ -106,6 +111,10 @@ class C_Bot:
                 return alfa
 
             if temp[0] < beta[0]:
+                beta[0] = temp[0]
+                beta[1] = temp[1]
+
+            elif temp[0] == beta[0] and np.random.rand() > 0.6:
                 beta[0] = temp[0]
                 beta[1] = temp[1]
         
