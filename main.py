@@ -10,10 +10,12 @@ def f_wykonaj_ruch_bota():
     global indeks
     global graj
     global znp_plansza
+    delta = 0
     if graj and (znp_plansza.shape[0] * znp_plansza.shape[1]) - np.count_nonzero(znp_plansza) > 0:
         zwrot = gracze[indeks].f_wykonaj_ruch(znp_plansza)
         znp_plansza = zwrot[0]
         graj = zwrot[1]
+        delta = zwrot[2]
         #print(znp_plansza)
         for i in range(0, len(znp_plansza)):
             for j in range(0, len(znp_plansza[0])):
@@ -32,6 +34,7 @@ def f_wykonaj_ruch_bota():
             messagebox.showinfo("Powiadomienie", "Rozgrywka zakończona, wygrywa gracz " + ("czerwony" if indeks == 1 else "żółty"))
     else:
         print("Koniec gry")
+    return delta
 
 def f_ruch_czlowieka(x):
     global indeks
@@ -70,10 +73,16 @@ def f_ruch_czlowieka(x):
         print("Koniec gry")
 
 def f_automatyzuj_boty():
-    global graj
-    while graj and (znp_plansza.shape[0] * znp_plansza.shape[1]) - np.count_nonzero(znp_plansza) > 0:
-        f_wykonaj_ruch_bota()
-        window.update()
+        global graj
+    #for i in range(0, 100):
+        ruvhy = 0
+        czas = 0
+        while graj and (znp_plansza.shape[0] * znp_plansza.shape[1]) - np.count_nonzero(znp_plansza) > 0:
+            czas += f_wykonaj_ruch_bota()
+            ruvhy += 1
+            window.update()
+        print("statystki:", ruvhy, czas/ruvhy)
+        #f_resetuj_plansze()
 
 def f_resetuj_plansze():
     global indeks
@@ -92,8 +101,8 @@ window.title("Czwórki")
 window.geometry("345x400")
 
 znp_plansza = np.zeros((6,7), np.int8)
-zb_bot1 = C_Bot(znp_plansza, 1, 4)
-zb_bot2 = C_Bot(znp_plansza, 2, 4)
+zb_bot1 = C_Bot(znp_plansza, 1, 6)
+zb_bot2 = C_Bot(znp_plansza, 2, 6)
 gracze = [zb_bot1, zb_bot2]
 
 graj = True

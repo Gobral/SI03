@@ -13,7 +13,7 @@ class C_Bot:
     def f_wyswietl_pomiar(self, label):
         zt_nowy = time.time()
         delta = zt_nowy - self.zt_aktualny_czas
-        print(label, "   ", delta)
+        #print(label, "   ", delta)
         self.zt_aktualny_czas = zt_nowy
         return delta
 
@@ -23,13 +23,13 @@ class C_Bot:
 
         if np.sum(self.znp_plansza) == 0:
             self.znp_plansza[5][np.random.randint(0, 7)] = self.zi_kolor
-            self.f_wyswietl_pomiar("Koniec")
-            return [self.znp_plansza, True]
+            delta = self.f_wyswietl_pomiar("Koniec")
+            return [self.znp_plansza, True, delta]
         
         root = C_Node(self.znp_plansza)
         root.color = self.zi_kolor
 
-        wyb = self.f_test_generowania(root)
+        wyb = self.f_test_alfabeta(root)
         while(wyb.parent != root):
             wyb = wyb.parent
         self.f_ocen_node(wyb, 1)
@@ -91,8 +91,7 @@ class C_Bot:
                 alfa = max(alfa, eva.score)
                 if beta <= alfa:
                     break
-            return maxnode
-
+            return maxnode if maxnode != None else node
         else:
             minev = 1000
             minnode = None
@@ -112,7 +111,7 @@ class C_Bot:
                 beta = min(beta, eva.score)
                 if beta <= alfa:
                     break
-            return minnode
+            return minnode if minnode != None else node
 
     
     def f_test_generowania(self, root):
@@ -130,7 +129,7 @@ class C_Bot:
         if poziom > self.zi_glebokosc:
             self.f_test_heurystyki(node)
             return node
-            
+
         kolor_p = 2 if kolor == 1 else 1
         node.score = -1000
         ruchy = self.f_generuj_ruchy(node.znp_stan, kolor_p)
