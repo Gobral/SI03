@@ -27,7 +27,7 @@ class C_Bot:
         root = C_Node(self.znp_plansza)
         root.color = self.zi_kolor
 
-        wyb = self.f_test_alfabeta(root)[1]
+        wyb = self.f_test_alfabeta(root)
         while(wyb.parent != root):
             wyb = wyb.parent
         self.f_ocen_node(wyb, 1)
@@ -45,9 +45,12 @@ class C_Bot:
         return [wyb.znp_stan, wyb.graj]
 
     def f_test_alfabeta(self, root):
-        alfa = [-1000, None]
-        beta = [1000, None]
-        return self.f_minmax_alfa(self.zi_kolor, root, 0, alfa, beta)
+        #alfa = [-1000, None]
+        #beta = [1000, None]
+        alfa = -1000
+        beta = 1000
+        #return self.f_minmax_alfa(self.zi_kolor, root, 0, alfa, beta)
+        return self.f_test_minmax(self.zi_kolor, root, 0, alfa, beta)
 
     def f_minmax_alfa(self, kolor, node, poziom, alfa, beta):
         self.f_ocen_node(node, kolor)
@@ -71,9 +74,6 @@ class C_Bot:
             nl.znp_stan[ruch[0]][ruch[1]] = ruch[2]
             temp =  self.f_minmax_beta(kolor_p, nl, poziom + 1, alfa, beta)
 
-            if temp[0] >= beta[0]:
-                return beta
-
             if temp[0] > alfa[0]:
                 alfa[0] = temp[0]
                 alfa[1] = temp[1]
@@ -81,6 +81,9 @@ class C_Bot:
             elif temp[0] == alfa[0] and np.random.rand() > 0.6:
                 alfa[0] = temp[0]
                 alfa[1] = temp[1]
+
+            if alfa[0] >= beta[0]:
+                return alfa
 
         
         return alfa
@@ -107,9 +110,6 @@ class C_Bot:
             nl.znp_stan[ruch[0]][ruch[1]] = ruch[2]
             temp = self.f_minmax_alfa(kolor_p, nl, poziom + 1, alfa, beta)
 
-            if temp[0] <= alfa[0]:
-                return alfa
-
             if temp[0] < beta[0]:
                 beta[0] = temp[0]
                 beta[1] = temp[1]
@@ -117,9 +117,73 @@ class C_Bot:
             elif temp[0] == beta[0] and np.random.rand() > 0.6:
                 beta[0] = temp[0]
                 beta[1] = temp[1]
+
+            if beta[0] <= alfa[0]:
+                return beta
         
         return beta
 
+    def f_test_minmax(self, kolor, node, poziom, alfa, beta):
+        #print(poziom)
+        self.f_ocen_node(node, kolor)
+        if node.score >= self.win_state:
+            if kolor != self.zi_kolor:
+                node.score = -node.score
+            return node
+        
+        if poziom > self.zi_glebokosc:
+            self.f_test_heurystyki(node)
+            return node
+        
+        node.score = -1000
+        ruchy = self.f_generuj_ruchy(node.znp_stan, kolor)
+        #wyniki = []
+        kolor_p = 2 if kolor == 1 else 1
+
+        if kolor == self.zi_kolor:
+            maxev = -1000
+            maxnode = None
+            for ruch in ruchy:
+                nl = node.f_dodaj_dziecko()
+                nl.color = kolor_p
+                nl.znp_stan[ruch[0]][ruch[1]] = ruch[2]
+                #wyniki.append(self.f_test_rekurencji(kolor_p, nl, poziom + 1))
+                eva = self.f_test_minmax(kolor_p, nl, poziom + 1, alfa, beta)
+                if eva.score > maxev:
+                    maxev = eva.score
+                    maxnode = eva
+                elif eva.score == maxev and np.random.rand() > 0.6:
+                    maxev = eva.score
+                    maxnode = eva
+
+                alfa = max(alfa, eva.score)
+                if beta <= alfa:
+                    break
+            return maxnode
+
+        else:
+            minev = 1000
+            minnode = None
+            for ruch in ruchy:
+                nl = node.f_dodaj_dziecko()
+                nl.color = kolor_p
+                nl.znp_stan[ruch[0]][ruch[1]] = ruch[2]
+                #wyniki.append(self.f_test_rekurencji(kolor_p, nl, poziom + 1))
+                self.f_test_minmax(kolor_p, nl, poziom + 1, alfa, beta)
+                eva = self.f_test_minmax(kolor_p, nl, poziom + 1, alfa, beta)
+                if eva.score < minev:
+                    minev = eva.score
+                    minnode = eva
+                elif eva.score == minev and np.random.rand() > 0.6:
+                    minev = eva.score
+                    minnode = eva
+
+                beta = min(beta, eva.score)
+                if beta <= alfa:
+                    break
+            return minnode
+
+    
     def f_test_generowania(self, root):
         return self.f_test_rekurencji(self.zi_kolor, root, 0)
 
