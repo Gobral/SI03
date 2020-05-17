@@ -101,8 +101,8 @@ window.title("Czwórki")
 window.geometry("345x400")
 
 znp_plansza = np.zeros((6,7), np.int8)
-zb_bot1 = C_Bot(znp_plansza, 1, 6)
-zb_bot2 = C_Bot(znp_plansza, 2, 6)
+zb_bot1 = C_Bot(znp_plansza, 1, 4)
+zb_bot2 = C_Bot(znp_plansza, 2, 4)
 gracze = [zb_bot1, zb_bot2]
 
 graj = True

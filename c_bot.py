@@ -7,6 +7,7 @@ class C_Bot:
         self.zt_aktualny_czas = time.time()
         self.znp_plansza = plansza
         self.zi_kolor = kolor
+        self.kolor_p = 2 if self.zi_kolor == 1 else 1
         self.zi_glebokosc = glebokosc
         self.win_state = 4
 
@@ -59,6 +60,8 @@ class C_Bot:
         #print(poziom)
         self.f_ocen_node(node, kolor)
         if node.score >= self.win_state:
+            temp = self.zi_glebokosc + 3 - poziom
+            node.score = node.score * temp
             if kolor != self.zi_kolor:
                 node.score = -node.score
             return node
@@ -91,7 +94,11 @@ class C_Bot:
                 alfa = max(alfa, eva.score)
                 if beta <= alfa:
                     break
-            return maxnode if maxnode != None else node
+            if maxnode != None:
+                return maxnode
+            else:
+                node.score = 1000
+                return node
         else:
             minev = 1000
             minnode = None
@@ -111,7 +118,11 @@ class C_Bot:
                 beta = min(beta, eva.score)
                 if beta <= alfa:
                     break
-            return minnode if minnode != None else node
+            if minnode != None:
+                return minnode
+            else:
+                node.score = -1000
+                return node
 
     
     def f_test_generowania(self, root):
@@ -122,6 +133,8 @@ class C_Bot:
         #print(poziom)
         self.f_ocen_node(node, kolor)
         if node.score >= self.win_state:
+            temp = self.zi_glebokosc - poziom + 3
+            node.score = node.score * temp
             if kolor != self.zi_kolor:
                 node.score = -node.score
             return node
@@ -151,10 +164,12 @@ class C_Bot:
 
     def f_test_heurystyki(self, node):
         temp_ocena = node.score
+        
         if node.color != self.zi_kolor:
             self.f_ocen_node(node, self.zi_kolor)
             node.score = node.score - temp_ocena
         else:
+            self.f_ocen_node(node, self.kolor_p)
             node.score = temp_ocena - node.score
 
 
