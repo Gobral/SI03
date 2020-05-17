@@ -31,6 +31,9 @@ class C_Bot:
         root.color = self.zi_kolor
 
         wyb = self.f_test_alfabeta(root)
+        if wyb == root:
+            temp = np.random.randint(0, len(root.children) )
+            wyb = root.children[temp]
         while(wyb.parent != root):
             wyb = wyb.parent
         self.f_ocen_node(wyb, 1)
@@ -87,9 +90,7 @@ class C_Bot:
                 if eva.score > maxev:
                     maxev = eva.score
                     maxnode = eva
-                elif eva.score == maxev and np.random.rand() > 0.6:
-                    maxev = eva.score
-                    maxnode = eva
+                
 
                 alfa = max(alfa, eva.score)
                 if beta <= alfa:
@@ -97,7 +98,7 @@ class C_Bot:
             if maxnode != None:
                 return maxnode
             else:
-                node.score = 1000
+                #node.score = 1000
                 return node
         else:
             minev = 1000
@@ -111,9 +112,6 @@ class C_Bot:
                 if eva.score < minev:
                     minev = eva.score
                     minnode = eva
-                elif eva.score == minev and np.random.rand() > 0.6:
-                    minev = eva.score
-                    minnode = eva
 
                 beta = min(beta, eva.score)
                 if beta <= alfa:
@@ -121,7 +119,7 @@ class C_Bot:
             if minnode != None:
                 return minnode
             else:
-                node.score = -1000
+                #node.score = -1000
                 return node
 
     
@@ -197,7 +195,7 @@ class C_Bot:
         
         return ret_ruchy
 
-    def f_ocen_node(self, node, kolor):
+    def f_ocen_node_stara(self, node, kolor):
         ocena = 0
         temp_kolor = node.color
         node.color = kolor
@@ -353,6 +351,159 @@ class C_Bot:
 
                 if licznik > ocena:
                     ocena = licznik
+        
+        node.score = ocena
+        node.color = temp_kolor
+
+    def f_ocen_node(self, node, kolor):
+        ocena = 0
+        temp_kolor = node.color
+        node.color = kolor
+        for kol in node.znp_stan.T:
+            i = len(kol) -1
+            licznik = 0
+            while i >= 0:
+                if kol[i] == node.color:
+                    licznik += 1
+                elif kol[i] != 0:
+                    if licznik >= ocena:
+                        ocena = licznik
+                    licznik = 0
+                else:
+                    break
+                i -= 1
+            if licznik > ocena:
+                ocena = licznik
+
+        for wier in node.znp_stan:
+            if np.sum(wier) != 0:
+                licznik = 0
+                zera = 0
+                for k in wier:
+                    if k == node.color:
+                        licznik += 1
+                    elif k != 0:
+                        if licznik >= ocena:
+                            ocena = licznik
+                        licznik = 0
+                        zera = 0
+                    else:
+                        if licznik > ocena:
+                            ocena = licznik
+                        licznik = 0
+                        zera += 1
+                if licznik > ocena:
+                    ocena = licznik
+
+        # przeszukiwanie od dołu na ukos w prawo
+        for kol in range(0, len(node.znp_stan[0]) - 1):
+            i = len(node.znp_stan) - 1
+            j = kol 
+            zera = 0
+            licznik = 0
+            while j < len(node.znp_stan[0]) and i >= 0:
+                if node.znp_stan[i][j] == node.color:
+                    licznik += 1
+                elif node.znp_stan[i][j] != 0:
+                    if licznik >= ocena:
+                        ocena = licznik
+                    licznik = 0
+                    zera = 0
+                else:
+                    if licznik > ocena:
+                        ocena = licznik
+                    licznik = 0
+                    zera += 1
+        
+                j += 1
+                i -= 1
+
+            if licznik > ocena:
+                ocena = licznik
+        
+        # przeszukiwanie od dołu na ukos w lewo
+        for kol in range(1, len(node.znp_stan[0])):
+            i = len(node.znp_stan) - 1
+            j = kol 
+            
+            zera = 0
+            licznik = 0
+            while j >= 0 and i >= 0:
+                if node.znp_stan[i][j] == node.color:
+                    licznik += 1
+                elif node.znp_stan[i][j] != 0:
+                    if licznik >= ocena:
+                        ocena = licznik
+                    licznik = 0
+                    zera = 0
+                else:
+                    if licznik > ocena:
+                        ocena = licznik
+                    licznik = 0
+                    zera += 1
+
+                j -= 1
+                i -= 1
+
+            if licznik > ocena:
+                ocena = licznik
+
+        # przeszukiwanie na ukos w prawo pozostale
+        for wier in range(1, len(node.znp_stan) - 1):
+            if wier > 0:
+                i = wier
+                j = 0
+                zera = 0
+                licznik = 0
+                while j < len(node.znp_stan[0]) and i >= 0:
+                    if node.znp_stan[i][j] == node.color:
+                        licznik += 1
+                    elif node.znp_stan[i][j] != 0:
+                        if licznik >= ocena:
+                            ocena = licznik
+                        licznik = 0
+                        zera = 0
+                    else:
+                        if licznik > ocena:
+                            ocena = licznik
+                        licznik = 0
+                        zera += 1
+
+                    j += 1
+                    i -= 1
+
+                if licznik > ocena:
+                    ocena = licznik
+        
+        # przeszukiwanie na ukos w lewo pozostale
+        for wier in range(1, len(node.znp_stan) - 1):
+            if wier > 0:
+                i = wier
+                j = len(node.znp_stan[0]) - 1
+                zera = 0
+                licznik = 0
+                while j >= 0 and i >= 0:
+                    if node.znp_stan[i][j] == node.color:
+                        licznik += 1
+                    elif node.znp_stan[i][j] != 0:
+                        if licznik >= ocena:
+                            ocena = licznik
+                        licznik = 0
+                        zera = 0
+                    else:
+                        if licznik > ocena:
+                            ocena = licznik
+                        zera += 1
+                        licznik = 0
+
+                    j -= 1
+                    i -= 1
+
+                if licznik > ocena:
+                    ocena = licznik
+
+        #print(node.znp_stan)
+        #print(node.score)
         
         node.score = ocena
         node.color = temp_kolor
