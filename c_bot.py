@@ -37,9 +37,11 @@ class C_Bot:
         while(wyb.parent != root):
             wyb = wyb.parent
         self.f_ocen_node(wyb, 1)
+
         if wyb.score >= self.win_state:
             wyb.graj = False
         self.f_ocen_node(wyb, 2)
+
         if wyb.score >= self.win_state:
             wyb.graj = False
             
@@ -194,8 +196,8 @@ class C_Bot:
                 w -= 1
         
         return ret_ruchy
-
-    def f_ocen_node_stara(self, node, kolor):
+    
+    def f_ocen_node(self, node, kolor):
         ocena = 0
         temp_kolor = node.color
         node.color = kolor
@@ -355,7 +357,8 @@ class C_Bot:
         node.score = ocena
         node.color = temp_kolor
 
-    def f_ocen_node(self, node, kolor):
+
+    def f_ocen_node_bez_ograniczen(self, node, kolor):
         ocena = 0
         temp_kolor = node.color
         node.color = kolor
